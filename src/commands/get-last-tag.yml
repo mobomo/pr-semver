@@ -1,0 +1,8 @@
+description: >
+  Exports the last tag as an Env Var.
+steps:
+  - checkout
+  - run:
+      command: |
+        LAST_TAG=$(git describe --tags --abbrev=0)
+        echo "export LAST_TAG=${LAST_TAG}" >> "$BASH_ENV"

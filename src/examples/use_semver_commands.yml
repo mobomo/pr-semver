@@ -1,0 +1,19 @@
+description: >
+  Example of job using the command `export-tag`
+usage:
+  version: 2.1
+  orbs:
+    pr-semver: mobomo/pr-semver@1.0.0
+  jobs:
+    - build-release-tag:
+        pre-steps: # Using a pre-step you will have the Env Var available for your commands.
+          - pr-semver/export-tag:
+              git-username: "jidrone-mbm"
+              tag-prefix: "build-v"
+        post-steps:
+          - git-publisher:
+              tag: $NEW_SEMVER_TAG # This is the env var generated that you can use.
+        filters:
+          branches:
+            only:
+              - develop # This is the destination branch of the PRs.

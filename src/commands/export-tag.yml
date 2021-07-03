@@ -1,0 +1,20 @@
+description: >
+  Exports the new tag number as an Env Var.
+parameters:
+  git-username:
+    default: ""
+    type: string
+    description: 'The automation username to push the tag.'
+  tag-prefix:
+    default: ""
+    type: string
+    description: 'The tag prefix.'
+steps:
+  - checkout
+  - run:
+      name: PR Semantic Versioning
+      environment:
+        SHA: $CIRCLE_SHA1
+        USER: << parameters.git-username >>
+        PREFIX: << parameters.tag-prefix >>
+      command: <<include(scripts/export-tag.sh)>>
