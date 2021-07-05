@@ -17,3 +17,18 @@ usage:
           branches:
             only:
               - develop # This is the destination branch of the PRs.
+
+  workflows: # Schedule job example
+    nightly: 
+      triggers:
+        - schedule:
+            cron: "0 7 * * *"
+            filters:
+              branches:
+                only:
+                  - develop
+      jobs:
+        - deploy-tag:
+            pre-steps:
+              - pr-semver/get-last-tag # Using get-last-tag to send it to the command.
+            tag: $LAST_TAG
