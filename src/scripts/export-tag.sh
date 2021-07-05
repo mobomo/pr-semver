@@ -1,5 +1,5 @@
 COMMIT_SHA=$(eval echo "$SHA")
-echo "$COMMIT_SHA"
+echo "Commit hash: $COMMIT_SHA"
 NAT='0|[1-9][0-9]*'
 SEMVER_REGEX="\
 ^[vV]?\
@@ -16,7 +16,8 @@ fi
 
 LAST_TAG=$(git describe --tags --abbrev=0 | sed -e "s/^$PREFIX//")
 
-echo $LABEL
+echo "Last Tag: $LAST_TAG"
+echo "Semver part to update: $LABEL"
 
 # Show error message.
 function error {
