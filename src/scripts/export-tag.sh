@@ -14,7 +14,7 @@ then
     LABEL="patch"
 fi
 
-LAST_TAG=$(git describe --tags --abbrev=0 | sed -e "s/^"$PREFIX"//")
+LAST_TAG=$(git describe --tags --abbrev=0 | sed -e "s/^'$PREFIX'//")
 
 echo "Last Tag: $LAST_TAG"
 echo "Semver part to update: $LABEL"
