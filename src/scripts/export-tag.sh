@@ -16,7 +16,7 @@ fi
 
 LAST_TAG=$(git describe --tags --abbrev=0)
 
-echo "$(sed --help)"
+sed --help
 echo "Last Tag: $LAST_TAG"
 echo "Semver part to update: $LABEL"
 
