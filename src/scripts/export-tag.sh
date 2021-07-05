@@ -1,16 +1,16 @@
-echo $SHA
+echo "$SHA"
 NAT='0|[1-9][0-9]*'
 SEMVER_REGEX="\
 ^[vV]?\
 ($NAT)\\.($NAT)\\.($NAT)$"
 
-PR_NUMBER=$(curl -s -X GET -u $USER:$GIT_USER_TOKEN https://api.github.com/search/issues?q=$SHA | jq .items[0].number)
+PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/search/issues?q="$SHA" | jq .items[0].number)
 
-LABEL=$(curl -s -X GET -u $USER:$GIT_USER_TOKEN https://api.github.com/repos/mobomo/mbn-voltron/issues/$PR_NUMBER/labels  | jq .[0].name -r)
+LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/mobomo/mbn-voltron/issues/"$PR_NUMBER"/labels  | jq .[0].name -r)
 
 if [ "$LABEL" == null ]
 then
-    LABEL=patch
+    LABEL="patch"
 fi
 
 LAST_TAG=$(git describe --tags --abbrev=0 | sed -e "s/^$PREFIX//")
@@ -43,10 +43,9 @@ function validate_version {
 
 # Increment.
 function increment {
-    local new; local version; local sub_version; local command;
+    local new; local version; local command;
 
     command=$LABEL
-    sub_version="+."
     version=$LAST_TAG
 
     validate_version "$version" parts
