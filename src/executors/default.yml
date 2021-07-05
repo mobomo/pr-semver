@@ -1,11 +1,11 @@
 description: >
   Docker image for jq and cURL based on alpine image.
 docker:
-  - image: 'endeveit/docker-jq:<<parameters.tag>>'
+  - image: 'makocchi/alpine-git-curl-jq:<<parameters.tag>>'
 parameters:
   tag:
     default: latest
     description: >
-      Pick a specific endeveit/docker-jq image variant:
-      https://hub.docker.com/r/endeveit/docker-jq/tags
+      Pick a specific makocchi/alpine-git-curl-jq image variant:
+      https://hub.docker.com/r/makocchi/alpine-git-curl-jq/tags
     type: string
