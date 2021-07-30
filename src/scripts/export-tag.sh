@@ -7,11 +7,11 @@ SEMVER_REGEX="\
 
 REPO_REGEX=':(.*)\.git'
 [[ $CIRCLE_REPOSITORY_URL =~ $REPO_REGEX ]]
-echo "${BASH_REMATCH[1]}"
+REPO_NAME="${BASH_REMATCH[1]}"
 
 PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/search/issues?q="$COMMIT_SHA" | jq .items[0].number)
 
-LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/mobomo/mbn-voltron/issues/"$PR_NUMBER"/labels  | jq .[0].name -r)
+LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_NAME"/issues/"$PR_NUMBER"/labels  | jq .[0].name -r)
 
 if [ "$LABEL" == null ] || [ "$LABEL" == "WIP" ]
 then
