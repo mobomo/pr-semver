@@ -5,8 +5,6 @@ SEMVER_REGEX="\
 ^[vV]?\
 ($NAT)\\.($NAT)\\.($NAT)$"
 
-REPO_REGEX=':(.*)\.git'
-[[ $CIRCLE_REPOSITORY_URL =~ $REPO_REGEX ]]
 REPO_NAME="${CIRCLE_PROJECT_REPONAME}"
 
 PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/search/issues?q="$COMMIT_SHA" | jq .items[0].number)
