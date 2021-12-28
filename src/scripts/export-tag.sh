@@ -66,7 +66,6 @@ function increment {
 
     echo "$new"
     echo "export NEW_SEMVER_TAG=${PREFIX}${new}" >> "$BASH_ENV"
-
     if [ -z "$NEW_SEMVER_TAG" ]
     then
           echo "\$NEW_SEMVER_TAG is empty. Exiting!"
