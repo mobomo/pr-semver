@@ -16,7 +16,7 @@ PR_NUMBER=$(curl -s -X GET -H "Authorization: token $GIT_USER_TOKEN" https://api
 LABELS=$(curl -s -X GET -H "Authorization: token $GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[].name -r)
 
 # to ensure uniqueness, find the highest semvar of any tag in the repo
-LARGEST_TAG=$(git tag | grep -E $SEMVER_REGEX | sort -r --version-sort | head -n1)
+LARGEST_TAG=$(git tag | grep -E "$SEMVER_REGEX" | sort -r --version-sort | head -n1)
 
 echo "Largest Tag: $LARGEST_TAG"
 echo "Labels: $LABELS"
@@ -53,7 +53,7 @@ function increment {
     commands=$LABELS
 
     # no labels count as "patch"
-    if [ "$commands" == null ] || [ -z "$commnands" ]; then
+    if [ "$commands" == null ] || [ -z "$commands" ]; then
         commands="patch"
     fi
 
@@ -69,7 +69,6 @@ function increment {
 
     local has_major=0;
     local has_minor=0;
-    local has_patch=0;
     local new="$version"
 
     for command in $commands; do
@@ -83,10 +82,8 @@ function increment {
             has_minor=1
         elif [ "$lcommand" = "patch" ] && [ $has_major -eq 0 ] && [ $has_minor -eq 0 ]; then
             new="${major}.${minor}.$((patch + 1))"
-            has_patch=1
         elif [ "$lcommand" = "wip" ] && [ $has_major -eq 0 ] && [ $has_minor -eq 0 ]; then
             new="${major}.${minor}.$((patch + 1))"
-            has_patch=1
         fi
     done
 
