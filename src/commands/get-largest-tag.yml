@@ -1,0 +1,8 @@
+description: >
+  Exports the largest tag in the repo as an Env Var.
+steps:
+  - checkout
+  - run:
+      command: |
+        LARGEST_TAG=$(git tag | grep -E ^([vV])\(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$ | sort -r --version-sort | head -n1)
+        echo "export LARGEST_TAG=${LARGEST_TAG}" >> "$BASH_ENV"
