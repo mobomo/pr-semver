@@ -4,7 +4,7 @@ echo "Commit hash: $COMMIT_SHA"
 # valid semvar for consideration must contain a "v" prefix and no postfix
 NAT='0|[1-9][0-9]*'
 SEMVER_REGEX="\
-^([vV])\
+^([vV]?\
 ($NAT)\\.($NAT)\\.($NAT)$"
 
 REPO_NAME="${CIRCLE_PROJECT_REPONAME}"
@@ -13,7 +13,7 @@ REPO_NAME="${CIRCLE_PROJECT_REPONAME}"
 PR_NUMBER=$(curl -s -X GET -H "Authorization: token $GIT_USER_TOKEN" https://api.github.com/search/issues?q="$COMMIT_SHA" | jq .items[0].number)
 
 # select all the labels of this PR
-LABELS=$(curl -s -X GET -H "Authorization: token $GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[].name -r)
+LABELS=$(curl -s -X GET -H "Authorization: token $GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[].name -r | grep -Ei "^(major|minor|patch)$" | tr '[:upper:]' '[:lower:]' | tr "\n" " ")
 
 # to ensure uniqueness, find the highest semvar of any tag in the repo
 LARGEST_TAG=$(git tag | grep -E "$SEMVER_REGEX" | sort -r --version-sort | head -n1)
@@ -72,17 +72,15 @@ function increment {
     local new="$version"
 
     for command in $commands; do
-        lcommand=$(echo "$command" | tr '[:upper:]' '[:lower:]')
-        echo "Checking '$lcommand'"
-        if [ "$lcommand" = "major" ]; then
+        if [ "$command" = "major" ]; then
             new="$((major + 1)).0.0"
             has_major=1
-        elif [ "$lcommand" = "minor" ] && [ $has_major -eq 0 ]; then
+        elif [ "$command" = "minor" ] && [ $has_major -eq 0 ]; then
             new="${major}.$((minor + 1)).0"
             has_minor=1
-        elif [ "$lcommand" = "patch" ] && [ $has_major -eq 0 ] && [ $has_minor -eq 0 ]; then
+        elif [ "$command" = "patch" ] && [ $has_major -eq 0 ] && [ $has_minor -eq 0 ]; then
             new="${major}.${minor}.$((patch + 1))"
-        elif [ "$lcommand" = "wip" ] && [ $has_major -eq 0 ] && [ $has_minor -eq 0 ]; then
+        elif [ "$command" = "wip" ] && [ $has_major -eq 0 ] && [ $has_minor -eq 0 ]; then
             new="${major}.${minor}.$((patch + 1))"
         fi
     done
