@@ -1,5 +1,5 @@
 description: >
-  Exports the last tag as an Env Var.
+  Exports the last tag of this branch as an Env Var.
 steps:
   - checkout
   - run:
