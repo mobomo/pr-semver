@@ -2,7 +2,7 @@ COMMIT_SHA=$(eval echo "$SHA")
 echo "Commit hash: $COMMIT_SHA"
 NAT='0|[1-9][0-9]*'
 SEMVER_REGEX="\
-^[vV]?\
+(${PREFIX})?\
 ($NAT)\\.($NAT)\\.($NAT)$"
 
 REPO_NAME="${CIRCLE_PROJECT_REPONAME}"
@@ -16,10 +16,10 @@ then
     LABEL="patch"
 fi
 
-LAST_TAG=$(git describe --tags --abbrev=0 | sed -e "s/^$PREFIX//")
+LAST_TAG=$(git describe --tags --abbrev=0 | grep -E "$PREFIX" | sed -e "s/^$PREFIX//")
 
-echo "Last Tag: $LAST_TAG"
-echo "Semver part to update: $LABEL"
+echo "Last Tag: $LAST_TAG".
+echo "Semver part to update: $LABEL".
 
 # Show error message.
 function error {
@@ -30,12 +30,12 @@ function error {
 # Validate version format.
 function validate_version {
     local version=$1
-    echo "$version"
+    echo "Version to validate: $version"
     if [[ "$version" =~ $SEMVER_REGEX ]]; then
     if [ "$#" -eq "2" ]; then
-        local major=${BASH_REMATCH[1]}
-        local minor=${BASH_REMATCH[2]}
-        local patch=${BASH_REMATCH[3]}
+        local major=${BASH_REMATCH[2]}
+        local minor=${BASH_REMATCH[3]}
+        local patch=${BASH_REMATCH[4]}
         eval "$2=(\"$major\" \"$minor\" \"$patch\")"
     else
         echo "$version"
@@ -48,6 +48,11 @@ function validate_version {
 # Increment.
 function increment {
     local new; local version; local command;
+
+    # If no last_tag was found, we start from scratch.
+    if [ -z "$LAST_TAG" ]; then
+        LAST_TAG="${PREFIX}0.0.0"
+    fi
 
     command=$LABEL
     version=$LAST_TAG
@@ -66,6 +71,7 @@ function increment {
 
     echo "$new"
     echo "export NEW_SEMVER_TAG=${PREFIX}${new}" >> "$BASH_ENV"
+
     if [ -z "$NEW_SEMVER_TAG" ]
     then
           echo "\$NEW_SEMVER_TAG is empty. Exiting!"
