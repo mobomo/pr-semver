@@ -1,6 +1,10 @@
 description: >
   Exports the new tag number as an Env Var.
 parameters:
+  ssh-fingerprint:
+    type: string
+    default: ""
+    description: "Environment fingerprints"
   git-username:
     default: ""
     type: string
@@ -10,6 +14,9 @@ parameters:
     type: string
     description: 'The tag prefix.'
 steps:
+  - add_ssh_keys:
+      fingerprints:
+        - << parameters.ssh-fingerprint >>
   - checkout
   - run:
       name: PR Semantic Versioning
