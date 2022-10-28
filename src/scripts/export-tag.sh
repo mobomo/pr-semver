@@ -5,11 +5,12 @@ SEMVER_REGEX="\
 (${PREFIX})?\
 ($NAT)\\.($NAT)\\.($NAT)$"
 
+REPO_ORG="${CIRCLE_PROJECT_USERNAME}"
 REPO_NAME="${CIRCLE_PROJECT_REPONAME}"
 
 PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/search/issues?q="$COMMIT_SHA" | jq .items[0].number)
 
-LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_NAME"/issues/"$PR_NUMBER"/labels  | jq .[0].name -r)
+LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_ORG"/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[0].name -r)
 
 if [ "$LABEL" == null ] || [ "$LABEL" == "WIP" ]
 then
