@@ -70,16 +70,16 @@ function increment {
     patch) new="${major}.${minor}.$((patch + 1))";;
     esac
 
-    echo "$new"
-    echo "export NEW_SEMVER_TAG=${PREFIX}${new}" >> "$BASH_ENV"
+    echo "New Tag: $new"
+    NEW_SEMVER_TAG=${PREFIX}${new}
+    echo "export NEW_SEMVER_TAG=$NEW_SEMVER_TAG" >> "$BASH_ENV"
 
-    if [ -z "$NEW_SEMVER_TAG" ]
-    then
-          echo "\$NEW_SEMVER_TAG is empty. Exiting!"
-          exit 1
+    if [ -z "$NEW_SEMVER_TAG" ]; then
+        echo "\$NEW_SEMVER_TAG is empty. Exiting!"
+        exit 1
     else
-          echo "\$NEW_SEMVER_TAG is: ${NEW_SEMVER_TAG}"
-          exit 0
+        echo "\$NEW_SEMVER_TAG is: ${NEW_SEMVER_TAG}"
+        exit 0
     fi
 }
 
