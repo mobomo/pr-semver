@@ -1,5 +1,3 @@
-#!/bin/bash
-
 COMMIT_SHA=$(eval echo "$SHA")
 echo "Commit hash: $COMMIT_SHA"
 NAT='0|[1-9][0-9]*'
@@ -20,8 +18,9 @@ fi
 
 echo "Try to get last tag using prefix: ${PREFIX}. If this is a new prefix, we will start from scratch."
 # Since grep will return 1 if no match, we test for that and if matches will return 0 instead.
-# Any other error code will exit as error (ie: 2).
-LAST_TAG=$(git describe --tags --abbrev=0 | grep -E "$PREFIX" | { grep -v grep || test $? = 1; } | sed -e "s/^$PREFIX//")
+# Any other error code will exit as error (ie: 2). Circleci is running this with -eo pipefail,
+# so we need to add the same test to all our greps :|
+LAST_TAG=$(git describe --tags --abbrev=0 | { grep -E "$PREFIX" || test $? = 1; } | { grep -v grep || test $? = 1; } | sed -e "s/^$PREFIX//")
 
 echo "Last Tag: $LAST_TAG"
 echo "Semver part to update: $LABEL"
