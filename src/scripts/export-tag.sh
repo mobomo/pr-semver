@@ -12,12 +12,15 @@ PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/s
 
 LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_ORG"/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[0].name -r)
 
-if [ "$LABEL" == null ] || [ "$LABEL" == "WIP" ]
-then
+if [ "$LABEL" = null ] || [ "$LABEL" = "WIP" ]; then
     LABEL="patch"
 fi
 
-LAST_TAG=$(git describe --tags --abbrev=0 | grep -E "$PREFIX" | sed -e "s/^$PREFIX//")
+echo "Try to get last tag using prefix: ${PREFIX}. If this is a new prefix, we will start from scratch."
+# Since grep will return 1 if no match, we test for that and if matches will return 0 instead.
+# Any other error code will exit as error (ie: 2). Circleci is running this with -eo pipefail,
+# so we need to add the same test to all our greps :|
+LAST_TAG=$(git describe --tags --abbrev=0 | { grep -E "$PREFIX" || test $? = 1; } | { grep -v grep || test $? = 1; } | sed -e "s/^$PREFIX//")
 
 echo "Last Tag: $LAST_TAG"
 echo "Semver part to update: $LABEL"
@@ -33,16 +36,16 @@ function validate_version {
     local version=$1
     echo "Version to validate: $version"
     if [[ "$version" =~ $SEMVER_REGEX ]]; then
-    if [ "$#" -eq "2" ]; then
-        local major=${BASH_REMATCH[2]}
-        local minor=${BASH_REMATCH[3]}
-        local patch=${BASH_REMATCH[4]}
-        eval "$2=(\"$major\" \"$minor\" \"$patch\")"
+      if [ "$#" -eq "2" ]; then
+          local major=${BASH_REMATCH[2]}
+          local minor=${BASH_REMATCH[3]}
+          local patch=${BASH_REMATCH[4]}
+          eval "$2=(\"$major\" \"$minor\" \"$patch\")"
+      else
+          echo "$version"
+      fi
     else
-        echo "$version"
-    fi
-    else
-    error "version $version does not match the semver scheme 'X.Y.Z'. See help for more information."
+      error "version $version does not match the semver scheme 'X.Y.Z'. See help for more information."
     fi
 }
 
@@ -52,12 +55,15 @@ function increment {
 
     # If no last_tag was found, we start from scratch.
     if [ -z "$LAST_TAG" ]; then
+        echo "LAST_TAG is empty, build tag name using prefix (${PREFIX})."
         LAST_TAG="${PREFIX}0.0.0"
+        echo "New tag name built: ${LAST_TAG}".
     fi
 
     command=$LABEL
     version=$LAST_TAG
 
+    echo "Validating tag name..."
     validate_version "$version" parts
     # shellcheck disable=SC2154
     local major="${parts[0]}"
@@ -70,16 +76,16 @@ function increment {
     patch) new="${major}.${minor}.$((patch + 1))";;
     esac
 
-    echo "$new"
-    echo "export NEW_SEMVER_TAG=${PREFIX}${new}" >> "$BASH_ENV"
+    echo "New Tag: $new"
+    NEW_SEMVER_TAG=${PREFIX}${new}
+    echo "export NEW_SEMVER_TAG=$NEW_SEMVER_TAG" >> "$BASH_ENV"
 
-    if [ -z "$NEW_SEMVER_TAG" ]
-    then
-          echo "\$NEW_SEMVER_TAG is empty. Exiting!"
-          exit 1
+    if [ -z "$NEW_SEMVER_TAG" ]; then
+        echo "\$NEW_SEMVER_TAG is empty. Exiting!"
+        exit 1
     else
-          echo "\$NEW_SEMVER_TAG is: ${NEW_SEMVER_TAG}"
-          exit 0
+        echo "\$NEW_SEMVER_TAG is: ${NEW_SEMVER_TAG}"
+        exit 0
     fi
 }
 
