@@ -17,6 +17,8 @@ then
     LABEL="patch"
 fi
 
+echo "Try to get last tag using prefix: ${PREFIX}. If this is a new prefix, we will start from scratch."
+
 LAST_TAG=$(git describe --tags --abbrev=0 | grep -E "$PREFIX" | sed -e "s/^$PREFIX//")
 
 echo "Last Tag: $LAST_TAG"
@@ -33,16 +35,16 @@ function validate_version {
     local version=$1
     echo "Version to validate: $version"
     if [[ "$version" =~ $SEMVER_REGEX ]]; then
-    if [ "$#" -eq "2" ]; then
-        local major=${BASH_REMATCH[2]}
-        local minor=${BASH_REMATCH[3]}
-        local patch=${BASH_REMATCH[4]}
-        eval "$2=(\"$major\" \"$minor\" \"$patch\")"
+      if [ "$#" -eq "2" ]; then
+          local major=${BASH_REMATCH[2]}
+          local minor=${BASH_REMATCH[3]}
+          local patch=${BASH_REMATCH[4]}
+          eval "$2=(\"$major\" \"$minor\" \"$patch\")"
+      else
+          echo "$version"
+      fi
     else
-        echo "$version"
-    fi
-    else
-    error "version $version does not match the semver scheme 'X.Y.Z'. See help for more information."
+      error "version $version does not match the semver scheme 'X.Y.Z'. See help for more information."
     fi
 }
 
@@ -52,12 +54,15 @@ function increment {
 
     # If no last_tag was found, we start from scratch.
     if [ -z "$LAST_TAG" ]; then
+        echo "LAST_TAG is empty, build tag name using prefix (${PREFIX})."
         LAST_TAG="${PREFIX}0.0.0"
+        echo "New tag name built: ${LAST_TAG}".
     fi
 
     command=$LABEL
     version=$LAST_TAG
 
+    echo "Validating tag name..."
     validate_version "$version" parts
     # shellcheck disable=SC2154
     local major="${parts[0]}"
