@@ -1,3 +1,5 @@
+#!/bin/bash
+
 COMMIT_SHA=$(eval echo "$SHA")
 echo "Commit hash: $COMMIT_SHA"
 NAT='0|[1-9][0-9]*'
@@ -19,6 +21,7 @@ fi
 
 echo "Try to get last tag using prefix: ${PREFIX}. If this is a new prefix, we will start from scratch."
 
+set -x
 LAST_TAG=$(git describe --tags --abbrev=0 | grep -E "$PREFIX" | sed -e "s/^$PREFIX//")
 
 echo "Last Tag: $LAST_TAG"
