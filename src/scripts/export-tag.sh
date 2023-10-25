@@ -12,7 +12,7 @@ PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/s
 
 LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_ORG"/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[0].name -r)
 
-if [ "$LABEL" = null ] || [ "$LABEL" = "WIP" ]; then
+if [ "$LABEL" == null ] || [ "$LABEL" == "WIP" ]; then
     LABEL="patch"
 fi
 
