@@ -12,7 +12,7 @@ PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/s
 
 LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_ORG"/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[0].name -r)
 
-if [ "$LABEL" = null ] || [ "$LABEL" = "WIP" ]; then
+if [ "$LABEL" == null ] || [ "$LABEL" == "WIP" ]; then
     LABEL="patch"
 fi
 
@@ -20,7 +20,8 @@ echo "Try to get last tag using prefix: ${PREFIX}. If this is a new prefix, we w
 # Since grep will return 1 if no match, we test for that and if matches will return 0 instead.
 # Any other error code will exit as error (ie: 2). Circleci is running this with -eo pipefail,
 # so we need to add the same test to all our greps :|
-LAST_TAG=$(git describe --tags --abbrev=0 | { grep -E "$PREFIX" || test $? = 1; } | { grep -v grep || test $? = 1; } | sed -e "s/^$PREFIX//")
+#LAST_TAG=$(git describe --tags --abbrev=0 | { grep -E "$PREFIX" || test $? = 1; } | { grep -v grep || test $? = 1; } | sed -e "s/^$PREFIX//")
+LAST_TAG=$(git tag --list --sort=-version:refname "${PREFIX}*" | head -n 1)
 
 echo "Last Tag: $LAST_TAG"
 echo "Semver part to update: $LABEL"
