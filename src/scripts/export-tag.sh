@@ -21,16 +21,10 @@ echo "Try to get last tag using prefix: ${PREFIX}. If this is a new prefix, we w
 # Any other error code will exit as error (ie: 2). Circleci is running this with -eo pipefail,
 # so we need to add the same test to all our greps :|
 #LAST_TAG=$(git describe --tags --abbrev=0 | { grep -E "$PREFIX" || test $? = 1; } | { grep -v grep || test $? = 1; } | sed -e "s/^$PREFIX//")
-LAST_TAG=$(git tag --list --sort=-version:refname "${PREFIX}*" | head -n 1)
+LAST_TAG=$(git describe --tags --abbrev=0 --match "${PREFIX}*")
 
 echo "Last Tag: $LAST_TAG"
 echo "Semver part to update: $LABEL"
-
-# Show error message.
-function error {
-    echo -e "$1" >&2
-    exit 1
-}
 
 # Validate version format.
 function validate_version {
