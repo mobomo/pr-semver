@@ -8,7 +8,7 @@ SEMVER_REGEX="\
 REPO_ORG="${CIRCLE_PROJECT_USERNAME}"
 REPO_NAME="${CIRCLE_PROJECT_REPONAME}"
 
-PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/search/issues?q="$COMMIT_SHA" | jq .items[0].number)
+PR_NUMBER=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/search/issues?q="$COMMIT_SHA""+is:pull-request" | jq .items[0].number)
 
 LABEL=$(curl -s -X GET -u "$USER":"$GIT_USER_TOKEN" https://api.github.com/repos/"$REPO_ORG"/"$REPO_NAME"/issues/"$PR_NUMBER"/labels | jq .[0].name -r)
 
